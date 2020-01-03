@@ -1,6 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>pip 与 ansible 的安装与配置</title>
+    <url>/2020/01/03/pip-%E4%B8%8E-ansible/</url>
+    <content><![CDATA[<h2 id="1-pip"><a href="#1-pip" class="headerlink" title="1.pip"></a>1.pip</h2><h3 id="1-1-下载安装-https-pip-pypa-io-en-stable-installing"><a href="#1-1-下载安装-https-pip-pypa-io-en-stable-installing" class="headerlink" title="1.1 下载安装(https://pip.pypa.io/en/stable/installing/)"></a>1.1 下载安装(<a href="https://pip.pypa.io/en/stable/installing/" target="_blank" rel="noopener">https://pip.pypa.io/en/stable/installing/</a>)</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">wget https:&#x2F;&#x2F;bootstrap.pypa.io&#x2F;get-pip.py --no-check-certificate</span><br><span class="line">python27 get-pip.py</span><br></pre></td></tr></table></figure>
+
+<p>ps: python27是编译安装的python 2.7</p>
+<h3 id="1-2-做软链接"><a href="#1-2-做软链接" class="headerlink" title="1.2.  做软链接"></a>1.2.  做软链接</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ln -s &#x2F;usr&#x2F;local&#x2F;python27&#x2F;bin&#x2F;pip &#x2F;usr&#x2F;bin&#x2F;pip</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-3-仓库修改为国内镜像源"><a href="#1-3-仓库修改为国内镜像源" class="headerlink" title="1.3. 仓库修改为国内镜像源"></a>1.3. 仓库修改为国内镜像源</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">vim ~&#x2F;.pip&#x2F;pip.conf</span><br><span class="line">[global]</span><br><span class="line">trusted-host&#x3D; mirrors.aliyun.com</span><br><span class="line">index-url &#x3D; https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;pypi&#x2F;simple</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-ansible"><a href="#2-ansible" class="headerlink" title="2. ansible"></a>2. ansible</h2><h3 id="2-1-安装sshpass-epel仓库才有"><a href="#2-1-安装sshpass-epel仓库才有" class="headerlink" title="2.1 安装sshpass(epel仓库才有)"></a>2.1 安装sshpass(epel仓库才有)</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install -y sshpass</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-安装ansible"><a href="#2-2-安装ansible" class="headerlink" title="2.2 安装ansible"></a>2.2 安装ansible</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pip install ansible</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-添加软连接"><a href="#2-3-添加软连接" class="headerlink" title="2.3 添加软连接"></a>2.3 添加软连接</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ln -s &#x2F;usr&#x2F;local&#x2F;python27&#x2F;bin&#x2F;ansible* &#x2F;usr&#x2F;bin</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-ansible常用模块"><a href="#3-ansible常用模块" class="headerlink" title="3. ansible常用模块"></a>3. ansible常用模块</h2><h3 id="3-1-远程命令模块"><a href="#3-1-远程命令模块" class="headerlink" title="3.1 远程命令模块"></a>3.1 远程命令模块</h3><p>功能：</p>
+<ul>
+<li>模块包括command，script，shell，都可以实现远程shell命令运行。</li>
+<li>command为ansible默认模块，可以远程执行命令。</li>
+<li>shell功能是执行远程主机的较复杂的shell命令（脚本？）</li>
+<li>script功能是在远程主机执行主控端存放的shell脚本</li>
+</ul>
+<p>例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ansible webservers -m command -a &quot;free -m&quot;</span><br><span class="line">ansible webservers -m shell -a &quot;&#x2F;home&#x2F;test.sh&quot;</span><br><span class="line">ansible webservers -m shell -a &quot;home&#x2F;test.sh 12 34&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-copy模块"><a href="#3-2-copy模块" class="headerlink" title="3.2 copy模块"></a>3.2 copy模块</h3><p>功能：</p>
+<ul>
+<li>实现主控端向目标主机拷贝文件，类似scp的功能</li>
+</ul>
+<p>例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ansible all -m copy -a &quot;src&#x3D;&#x2F;home&#x2F;test.sh dest&#x3D;&#x2F;tmp&#x2F; owner&#x3D;root group&#x3D;root mode&#x3D;0755&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-stat模块"><a href="#3-3-stat模块" class="headerlink" title="3.3 stat模块"></a>3.3 stat模块</h3><p>功能：</p>
+<ul>
+<li>获取远程文件状态信息，包括atime,ctime,mtime,md5,uid,gid等信息</li>
+</ul>
+<p>例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ansible webservers -m stat -a &quot;path&#x3D;&#x2F;etc&#x2F;sysctl.conf&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-4-yum，apt模块"><a href="#3-4-yum，apt模块" class="headerlink" title="3.4 yum，apt模块"></a>3.4 yum，apt模块</h3><p>功能：</p>
+<ul>
+<li>Linux平台软件包管理操作</li>
+</ul>
+<p>例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ansible webservers -m apt -a &quot;pkg&#x3D;zsh state&#x3D;latest&quot;</span><br><span class="line">ansible webservers -m yum -a &quot;name&#x3D;zsh state&#x3D;latest&quot;</span><br><span class="line">ansible webservers -m yum -a &quot;name&#x3D;xxx.rpm state&#x3D;present&quot;</span><br><span class="line">ansible webservers -m yum -a &quot;name&#x3D;&#39;@Development Tools&#39; state&#x3D;present&quot;</span><br></pre></td></tr></table></figure>
+
+<p>注意：如果目标主机Python版本发生变化需要在hosts文件中指定</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[webservers:vars]</span><br><span class="line">ansible_python_interpreter&#x3D;&quot;&#x2F;usr&#x2F;bin&#x2F;python_old&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-5-cron模块"><a href="#3-5-cron模块" class="headerlink" title="3.5 cron模块"></a>3.5 cron模块</h3><p>功能：</p>
+<ul>
+<li>远程主机crontab配置</li>
+</ul>
+<p>例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ansible webservers -m cron -a &quot;name&#x3D;&#39;do something&#39; hour&#x3D;5,2 job&#x3D;&#39;ls -alh &gt; &#x2F;dev&#x2F;null&#39;&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-6-mount模块"><a href="#3-6-mount模块" class="headerlink" title="3.6 mount模块"></a>3.6 mount模块</h3><p>功能：</p>
+<ul>
+<li>远程主机分区挂载</li>
+</ul>
+<p>例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ansible webservers -m mount -a &quot;name&#x3D;&#x2F;mnt&#x2F;data src&#x3D;&#x2F;dev&#x2F;sd0 fstype&#x3D;ext4 opts&#x3D;ro state&#x3D;present&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-7-service模块"><a href="#3-7-service模块" class="headerlink" title="3.7 service模块"></a>3.7 service模块</h3><p>功能：</p>
+<ul>
+<li>远程主机系统服务管理</li>
+</ul>
+<p>例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ansible webservers -m service -a &quot;name&#x3D;httpd state&#x3D;stopped&quot;</span><br><span class="line">ansible webservers -m service -a &quot;name&#x3D;httpd state&#x3D;restarted&quot;</span><br><span class="line">ansible webservers -m service -a &quot;name&#x3D;httpd state&#x3D;reloaded&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-8-user模块"><a href="#3-8-user模块" class="headerlink" title="3.8 user模块"></a>3.8 user模块</h3><p>功能：</p>
+<ul>
+<li>远程主机系统用户管理</li>
+</ul>
+<p>例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ansible webservers -m user -a &quot;name&#x3D;alice comment&#x3D;&#39;i am alice&#39;&quot;</span><br><span class="line">ansible webservers -m user -a &quot;name&#x3D;bob state&#x3D;absent remove&#x3D;yes&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-9-get-url模块"><a href="#3-9-get-url模块" class="headerlink" title="3.9 get_url模块"></a>3.9 get_url模块</h3><p>功能：</p>
+<ul>
+<li>实现远程主机下载执行URL到本地，支持sha256sum文件校检</li>
+</ul>
+<p>例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ansible webserver -m get_url -a &quot;url&#x3D;http:&#x2F;&#x2F;images.17173.com&#x2F;2016&#x2F;acg&#x2F;2016&#x2F;01&#x2F;07&#x2F;gq0107tt10.jpg dest&#x3D;&#x2F;root&#x2F; mode&#x3D;0775 force&#x3D;yes&quot;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>运维</category>
+      </categories>
+      <tags>
+        <tag>ansible</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>LNMP编译安装</title>
     <url>/2019/12/31/LNMP%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85/</url>
     <content><![CDATA[<h1 id="LNMP编译安装"><a href="#LNMP编译安装" class="headerlink" title="LNMP编译安装"></a>LNMP编译安装</h1><h2 id="0-安装准备"><a href="#0-安装准备" class="headerlink" title="0.安装准备"></a>0.安装准备</h2><h3 id="0-0-先卸载之前yum安装的相关软件"><a href="#0-0-先卸载之前yum安装的相关软件" class="headerlink" title="0.0 先卸载之前yum安装的相关软件"></a>0.0 先卸载之前yum安装的相关软件</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#停止mysql服务</span><br><span class="line">&#x2F;etc&#x2F;init.d&#x2F;mysqld stop</span><br><span class="line">#停止php-fpm服务</span><br><span class="line">&#x2F;etc&#x2F;init.d&#x2F;php-fpm stop</span><br><span class="line">#删除相关rpm包</span><br><span class="line">yum remove php* mysql*</span><br><span class="line">#删除相关配置文件</span><br><span class="line">rm -rf &#x2F;var&#x2F;lib&#x2F;mysql  &#x2F;etc&#x2F;my.cnf</span><br></pre></td></tr></table></figure>
